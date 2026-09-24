@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Code Editer π</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Monaco Editor -->
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="vendor/monaco/min/vs/editor/editor.main.css" />
+  <!-- XTerm.js -->
+  <link rel="stylesheet" href="vendor/xterm/css/xterm.css" />
+</head>
+<body>
+
+  <!-- ======= TOP BAR ======= -->
+  <header id="topbar">
+    <button id="btn-sidebar" class="icon-btn" aria-label="Toggle sidebar">☰</button>
+    <div class="brand">
+      <span class="brand-pi">π</span>
+      <span class="brand-name">code editer</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-run" class="action-btn" title="Run (Ctrl+Enter)">▶ Run</button>
+      <button id="btn-save" class="action-btn" title="Save (Ctrl+S)">💾 Save</button>
+      <button id="btn-new-file" class="action-btn" title="New File">＋ File</button>
+      <button id="btn-new-folder" class="action-btn" title="New Folder">＋ Folder</button>
+    </div>
+  </header>
+
+  <!-- ======= MAIN LAYOUT ======= -->
+  <div id="main-container">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebar-overlay"></div>
+
+    <!-- ======= LEFT SIDEBAR : FILE EXPLORER ======= -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span>EXPLORER</span>
+        <button id="btn-collapse-all" class="icon-btn small" title="Collapse All">⊟</button>
+      </div>
+      <div id="file-tree" class="file-tree"></div>
+      <div class="sidebar-footer">
+        <span id="storage-status">IndexedDB: ready</span>
+      </div>
+    </aside>
+
+    <!-- ======= CENTER : EDITOR AREA ======= -->
+    <section id="editor-area">
+      <!-- Tab Bar -->
+      <div id="tab-bar" class="tab-bar"></div>
+      <!-- Monaco Mount Point -->
+      <div id="editor-container"></div>
+
+      <!-- ======= BOTTOM PANEL : TERMINAL + PREVIEW ======= -->
+      <div id="bottom-panel">
+        <!-- Drag Handle -->
+        <div id="panel-drag-handle" class="drag-handle"></div>
+        <!-- Panel Tabs -->
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-panel="terminal">Terminal</button>
+          <button class="panel-tab" data-panel="preview">Preview</button>
+          <button class="panel-tab" data-panel="problems">Problems</button>
+          <span class="panel-spacer"></span>
+          <button id="btn-panel-close" class="icon-btn small" title="Close Panel">✕</button>
+        </div>
+        <!-- Panel Content -->
+        <div class="panel-content">
+          <div id="panel-terminal" class="panel-page active">
+            <div id="terminal-container"></div>
+          </div>
+          <div id="panel-preview" class="panel-page">
+            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin" title="Live Preview"></iframe>
+          </div>
+          <div id="panel-problems" class="panel-page">
+            <div id="problems-list" class="problems-list">No problems detected.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======= STATUS BAR ======= -->
+  <footer id="statusbar">
+    <span id="status-lang">plaintext</span>
+    <span id="status-position">Ln 1, Col 1</span>
+    <span id="status-encoding">UTF-8</span>
+    <span id="status-indent">Spaces: 2</span>
+    <span class="status-spacer"></span>
+    <span id="status-pwa">Offline Ready</span>
+  </footer>
+
+  <!-- ======= CONTEXT MENU ======= -->
+  <div id="context-menu" class="context-menu hidden">
+    <button data-action="rename">Rename</button>
+    <button data-action="delete">Delete</button>
+    <button data-action="new-file">New File</button>
+    <button data-action="new-folder">New Folder</button>
+  </div>
+
+  <!-- ======= MODAL (rename / new file / new folder) ======= -->
+  <div id="modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 id="modal-title">New File</h3>
+      <input type="text" id="modal-input" placeholder="Enter name…" autocomplete="off" />
+      <div class="modal-actions">
+        <button id="modal-cancel" class="action-btn secondary">Cancel</button>
+        <button id="modal-confirm" class="action-btn primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Scripts -->
+  <script src="vendor/localforage.min.js"></script>
+  <script src="vendor/xterm/lib/xterm.js"></script>
+  <script src="vendor/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+  <script src="vendor/monaco/min/vs/loader.js"></script>
+
+  <!-- App Scripts -->
+  <script src="fileSystem.js"></script>
+  <script src="terminal.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
