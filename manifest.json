@@ -1,6 +1,7 @@
 {
   "name": "Code Editer π",
   "short_name": "π Editor",
+  "version": "1.1.0",
   "description": "A fully offline, browser-based IDE with Monaco Editor, terminal, and live preview.",
   "start_url": "./index.html",
   "scope": "./",

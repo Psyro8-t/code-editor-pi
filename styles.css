@@ -147,6 +147,19 @@ html, body {
   user-select: none;
 }
 
+.project-strip {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 12px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+.project-strip span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .file-tree {
   flex: 1;
   overflow-y: auto;
@@ -411,6 +424,20 @@ html, body {
   max-width: 90vw;
 }
 .modal-box h3 { font-size: 14px; margin-bottom: 14px; color: var(--text-primary); font-weight: 600; }
+.project-modal-box { width: 430px; max-width: 92vw; }
+.project-dialog-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.project-dialog-heading h3 { margin: 0; }
+.field-label { display: block; margin: 10px 0 5px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
+.project-select, .project-create-row input {
+  width: 100%; background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary);
+  font-family: var(--font-ui); font-size: 13px; padding: 8px 10px; border-radius: var(--radius); outline: none;
+}
+.project-select:focus, .project-create-row input:focus { border-color: var(--accent); }
+.project-actions, .project-create-row, .project-import-grid { display: flex; gap: 6px; margin-top: 8px; }
+.project-create-row input { flex: 1; }
+.project-import-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 14px; }
+.project-status { min-height: 20px; margin-top: 14px; color: var(--text-muted); font-size: 11px; line-height: 1.4; }
+.project-status.error { color: var(--danger); }
 .modal-box input {
   width: 100%;
   background: var(--bg-primary);
@@ -437,6 +464,7 @@ html, body {
   :root { --sidebar-w: 260px; }
 
   .topbar-actions .action-btn { padding: 5px 8px; font-size: 11px; }
+  #btn-download-file { display: none; }
   #btn-new-folder { display: none; }
   .brand-name { display: none; }
 
@@ -464,6 +492,9 @@ html, body {
 @media (max-width: 480px) {
   .topbar-actions { gap: 4px; }
   .action-btn { padding: 4px 7px; font-size: 10px; }
+  #btn-projects, #btn-export-zip { font-size: 0; }
+  #btn-projects::after { content: "▣"; font-size: 14px; }
+  #btn-export-zip::after { content: "⇩"; font-size: 14px; }
   #btn-run { font-size: 0; }
   #btn-run::after { content: "▶"; font-size: 14px; }
   #btn-save { font-size: 0; }

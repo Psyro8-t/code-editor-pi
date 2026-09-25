@@ -28,8 +28,11 @@
       <span class="brand-name">code editer</span>
     </div>
     <div class="topbar-actions">
+      <button id="btn-projects" class="action-btn" title="Projects">▣ Projects</button>
       <button id="btn-run" class="action-btn" title="Run (Ctrl+Enter)">▶ Run</button>
       <button id="btn-save" class="action-btn" title="Save (Ctrl+S)">💾 Save</button>
+      <button id="btn-export-zip" class="action-btn" title="Export project as ZIP">⇩ ZIP</button>
+      <button id="btn-download-file" class="action-btn" title="Download current file">⇩ File</button>
       <button id="btn-new-file" class="action-btn" title="New File">＋ File</button>
       <button id="btn-new-folder" class="action-btn" title="New Folder">＋ Folder</button>
     </div>
@@ -46,6 +49,10 @@
       <div class="sidebar-header">
         <span>EXPLORER</span>
         <button id="btn-collapse-all" class="icon-btn small" title="Collapse All">⊟</button>
+      </div>
+      <div class="project-strip">
+        <span id="current-project-name">My Project</span>
+        <button id="btn-projects-mini" class="icon-btn small" title="Manage Projects">⚙</button>
       </div>
       <div id="file-tree" class="file-tree"></div>
       <div class="sidebar-footer">
@@ -118,8 +125,43 @@
     </div>
   </div>
 
+  <!-- ======= PROJECT MANAGER ======= -->
+  <div id="project-dialog" class="modal-overlay hidden">
+    <div class="modal-box project-modal-box">
+      <div class="project-dialog-heading">
+        <h3>Project Manager</h3>
+        <button id="project-dialog-close" class="icon-btn small" title="Close">✕</button>
+      </div>
+      <label class="field-label" for="project-select">Current project</label>
+      <select id="project-select" class="project-select"></select>
+      <div class="project-actions">
+        <button id="btn-switch-project" class="action-btn primary">Open</button>
+        <button id="btn-rename-project" class="action-btn secondary">Rename</button>
+        <button id="btn-delete-project" class="action-btn secondary">Delete</button>
+      </div>
+      <label class="field-label" for="project-name-input">New project name</label>
+      <div class="project-create-row">
+        <input type="text" id="project-name-input" placeholder="My new project" autocomplete="off" />
+        <button id="btn-new-project" class="action-btn primary">Create</button>
+      </div>
+      <div class="project-import-grid">
+        <button id="btn-import-zip" class="action-btn">Import ZIP</button>
+        <button id="btn-upload-folder" class="action-btn">Upload Folder</button>
+        <button id="btn-upload-files" class="action-btn">Upload Files</button>
+        <button id="btn-restore-backup" class="action-btn">Restore Backup</button>
+        <button id="btn-backup" class="action-btn">Backup JSON</button>
+      </div>
+      <div id="project-status" class="project-status">Choose a project or create a new one.</div>
+      <input id="project-file-input" type="file" accept=".zip,application/zip" hidden />
+      <input id="project-folder-input" type="file" webkitdirectory directory multiple hidden />
+      <input id="project-single-input" type="file" multiple hidden />
+      <input id="project-backup-input" type="file" accept="application/json,.json" hidden />
+    </div>
+  </div>
+
   <!-- Vendor Scripts -->
   <script src="vendor/localforage.min.js"></script>
+  <script src="vendor/jszip/jszip.min.js"></script>
   <script src="vendor/xterm/lib/xterm.js"></script>
   <script src="vendor/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
   <script src="vendor/pyodide/pyodide.js"></script>
@@ -129,6 +171,7 @@
   <!-- App Scripts -->
   <script src="fileSystem.js"></script>
   <script src="terminal.js"></script>
+  <script src="projectManager.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -52,6 +52,7 @@
 
   let editor = null;
   let monacoReady = false;
+  let autoSaveTimer = null;
 
   // ==================== MONACO INIT ====================
   function initMonaco() {
@@ -162,6 +163,9 @@
       model.onDidChangeContent(() => {
         tab.dirty = true;
         updateTabUI(path);
+        els.statusPwa.textContent = 'Unsaved changes';
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => saveActiveFile(), 900);
       });
     }
     state.activeTab = path;
@@ -188,15 +192,14 @@
     renderTabs();
   }
 
-  function saveActiveFile() {
+  async function saveActiveFile() {
     const tab = getTab(state.activeTab);
     if (!tab) return;
-    FileSystem.writeFile(tab.path, tab.model.getValue()).then(() => {
-      tab.dirty = false;
-      updateTabUI(tab.path);
-      flashStatus('Saved ✓');
-      TerminalManager.writeln(`Saved: ${tab.path}`);
-    });
+    await FileSystem.writeFile(tab.path, tab.model.getValue());
+    tab.dirty = false;
+    updateTabUI(tab.path);
+    flashStatus('Saved ✓');
+    TerminalManager.writeln(`Saved: ${tab.path}`);
   }
 
   function updateTabUI(path) {
@@ -548,6 +551,7 @@
   }
   $('#btn-sidebar').addEventListener('click', toggleSidebar);
   els.overlay.addEventListener('click', toggleSidebar);
+  $('#btn-projects-mini')?.addEventListener('click', () => ProjectManager.openDialog());
 
   // ==================== TOP BAR BUTTONS ====================
   $('#btn-run').addEventListener('click', runActiveFile);
@@ -589,8 +593,35 @@
     }
   }
 
+  async function reloadWorkspace() {
+    state.openTabs.forEach(tab => tab.model.dispose());
+    state.openTabs = [];
+    state.activeTab = null;
+    editor?.setModel(null);
+    await FileSystem.seedIfEmpty();
+    state.expanded = await FileSystem.getExpandedSet();
+    await renderTree();
+    renderTabs();
+    const files = await collectAllFiles('/');
+    const first = files.find(f => f.endsWith('index.html')) || files[0];
+    if (first) await openFile(first);
+    const project = await FileSystem.getCurrentProject();
+    els.storageStatus.textContent = `${project.name} · ${files.length} files`;
+    await ProjectManager.refresh();
+    flashStatus(`Opened ${project.name}`);
+  }
+
+  window.PIApp = {
+    getActivePath: () => state.activeTab,
+    saveActiveFile,
+    reloadWorkspace
+  };
+  window.addEventListener('pi:workspace-changed', reloadWorkspace);
+
   // ==================== BOOT ====================
   async function boot() {
+    await FileSystem.init();
+    await ProjectManager.init();
     // Seed & load VFS
     const seeded = await FileSystem.seedIfEmpty();
     state.expanded = await FileSystem.getExpandedSet();
@@ -619,7 +650,8 @@
     });
 
     registerSW();
-    els.storageStatus.textContent = `IndexedDB: ${files.length} files`;
+    const project = await FileSystem.getCurrentProject();
+    els.storageStatus.textContent = `${project.name} · ${files.length} files`;
   }
 
   boot();

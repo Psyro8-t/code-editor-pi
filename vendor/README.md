@@ -10,5 +10,6 @@ These files are the minimal browser runtime assets required by Code Editer π. P
 | localForage | 1.10.0 | `localforage.min.js` |
 | Pyodide | 0.29.5 | `pyodide/` loader, JavaScript/WASM runtime, standard library, and lock file |
 | TypeScript | 5.9.3 | `typescript/typescript.js` compiler runtime for `.ts` execution and inline TypeScript preview |
+| JSZip | 3.10.2 | `jszip/jszip.min.js` browser ZIP import/export runtime |
 
 The service worker precaches every runtime file listed by the application so the editor and its Python runtime can start without network access after installation.

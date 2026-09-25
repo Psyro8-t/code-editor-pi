@@ -4,8 +4,8 @@
    fallback. Static and vendor assets are cached for offline startup.
    ============================================================ */
 
-const CACHE_NAME = 'code-editer-pi-v3.0.0';
-const RUNTIME_CACHE = 'code-editer-pi-runtime-v3';
+const CACHE_NAME = 'code-editer-pi-v3.1.0';
+const RUNTIME_CACHE = 'code-editer-pi-runtime-v3.1';
 const APP_SHELL = new URL('./', self.registration.scope).href;
 
 const PRECACHE = [
@@ -13,9 +13,11 @@ const PRECACHE = [
   './app.js',
   './fileSystem.js',
   './terminal.js',
+  './projectManager.js',
   './manifest.json',
   './assets/icon.svg',
   './vendor/localforage.min.js',
+  './vendor/jszip/jszip.min.js',
   './vendor/monaco/min/vs/abap-D-t0cyap.js',
   './vendor/monaco/min/vs/apex-CcIm7xu6.js',
   './vendor/monaco/min/vs/assets/css.worker-URu8fCFR.js',
