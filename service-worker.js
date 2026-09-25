@@ -1,22 +1,20 @@
 /* ============================================================
    service-worker.js — Offline-first caching strategy
-   All application and vendored runtime assets are precached so
-   the editor, workers, and Pyodide can start without a network.
+   Navigation is network-first with a guaranteed cached app-shell
+   fallback. Static and vendor assets are cached for offline startup.
    ============================================================ */
 
-const CACHE_NAME = 'code-editer-pi-v2.0.0';
-const RUNTIME_CACHE = 'code-editer-pi-runtime-v2';
+const CACHE_NAME = 'code-editer-pi-v3.0.0';
+const RUNTIME_CACHE = 'code-editer-pi-runtime-v3';
+const APP_SHELL = new URL('./', self.registration.scope).href;
 
 const PRECACHE = [
-  './',
-  './index.html',
   './styles.css',
   './app.js',
   './fileSystem.js',
   './terminal.js',
   './manifest.json',
   './assets/icon.svg',
-
   './vendor/localforage.min.js',
   './vendor/monaco/min/vs/abap-D-t0cyap.js',
   './vendor/monaco/min/vs/apex-CcIm7xu6.js',
@@ -169,46 +167,66 @@ const PRECACHE = [
 
 // ---------- Install ----------
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    // Cache the app shell from the root URL as a 200 response. This
+    // avoids caching /index.html redirects that can produce ERR_FAILED
+    // in mobile Chromium when the old worker serves a navigation.
+    const shellResponse = await fetch(APP_SHELL, { cache: 'reload' });
+    if (!shellResponse.ok) throw new Error(`App shell failed: ${shellResponse.status}`);
+    await cache.put(APP_SHELL, shellResponse.clone());
+    await cache.addAll(PRECACHE.filter(url => url !== './'));
+    await self.skipWaiting();
+  })());
 });
 
 // ---------- Activate ----------
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME && key !== RUNTIME_CACHE)
-          .map(key => caches.delete(key))
-    )).then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => ![CACHE_NAME, RUNTIME_CACHE].includes(key)).map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 
 // ---------- Fetch ----------
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      caches.match(request).then(cached => cached || caches.match('./index.html'))
-    );
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response.ok) {
+          const cache = await caches.open(RUNTIME_CACHE);
+          await cache.put(APP_SHELL, response.clone());
+        }
+        return response;
+      } catch {
+        const cachedShell = await caches.match(APP_SHELL);
+        return cachedShell || new Response('Offline app shell unavailable', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+      }
+    })());
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
-        if (response.ok && new URL(request.url).origin === self.location.origin) {
-          const clone = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
-        }
-        return response;
-      });
-    })
-  );
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    try {
+      const response = await fetch(request);
+      if (response.ok) {
+        const cache = await caches.open(RUNTIME_CACHE);
+        await cache.put(request, response.clone());
+      }
+      return response;
+    } catch {
+      return new Response('', { status: 504, statusText: 'Offline and not cached' });
+    }
+  })());
 });
 
 // ---------- Manual update hook ----------
