@@ -195,7 +195,7 @@ const TerminalManager = (() => {
 
   async function cmdRun(arg) {
     if (!arg) { term.writeln('usage: run <file>'); return; }
-    const p = FileSystem.normalize(FileSystem.join(cwd, arg));
+    const p = resolveFilePath(arg);
     const ext = FileSystem.extname(p).toLowerCase();
     try {
       const content = await FileSystem.readFile(p);
@@ -208,11 +208,16 @@ const TerminalManager = (() => {
 
   async function cmdPython(arg) {
     if (!arg) { term.writeln('usage: python <file.py>'); return; }
-    const p = FileSystem.normalize(FileSystem.join(cwd, arg));
+    const p = resolveFilePath(arg);
     try {
       const content = await FileSystem.readFile(p);
       await runPython(content, p);
     } catch (e) { term.writeln(`python: ${e.message}`); }
+  }
+
+  function resolveFilePath(arg) {
+    const value = String(arg || '').trim();
+    return FileSystem.normalize(value.startsWith('/') ? value : FileSystem.join(cwd, value));
   }
 
   // ---------- Pyodide ----------
@@ -223,12 +228,13 @@ const TerminalManager = (() => {
     pyodideLoading = (async () => {
       // Assumes pyodide is served locally in vendor/pyodide/
       pyodide = await loadPyodide({ indexURL: 'vendor/pyodide/' });
-      // Bridge browser console
+      // Bridge Python stdout/stderr into the visible terminal.
+      window.piPythonWrite = (text) => term.write(String(text));
       pyodide.runPython(`
 import sys
-from js import console
+from js import piPythonWrite
 class __PiConsole:
-    def write(self, s): console.log(s.rstrip())
+    def write(self, s): piPythonWrite(s)
     def flush(self): pass
 sys.stdout = __PiConsole()
 sys.stderr = __PiConsole()
@@ -240,11 +246,12 @@ sys.stderr = __PiConsole()
   }
 
   async function runPython(code, filename = '<stdin>') {
-    const py = await ensurePyodide();
     try {
+      const py = await ensurePyodide();
       await py.runPythonAsync(code);
+      term.writeln(`✓ Python finished: ${filename}`);
     } catch (e) {
-      term.writeln(`\x1b[31m${e.message || e}\x1b[0m`);
+      term.writeln(`\x1b[31mPython error in ${filename}: ${e.message || e}\x1b[0m`);
     }
   }
 

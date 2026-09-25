@@ -31,6 +31,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+* { scroll-behavior: smooth; }
 
 html, body {
   height: 100%;
@@ -77,6 +78,8 @@ html, body {
 .brand-name { font-weight: 600; letter-spacing: 0.5px; color: var(--text-primary); font-size: 13px; }
 
 .topbar-actions { margin-left: auto; display: flex; gap: 6px; }
+.topbar-actions { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.topbar-actions::-webkit-scrollbar { display: none; }
 
 /* ============ BUTTONS ============ */
 .icon-btn {
@@ -164,6 +167,8 @@ html, body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   padding: 4px 0;
 }
 
@@ -346,6 +351,8 @@ html, body {
 .problems-list {
   flex: 1;
   overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   padding: 10px 14px;
   font-family: var(--font-mono);
   font-size: 12px;
@@ -463,7 +470,9 @@ html, body {
 @media (max-width: 768px) {
   :root { --sidebar-w: 260px; }
 
-  .topbar-actions .action-btn { padding: 5px 8px; font-size: 11px; }
+  #topbar { gap: 6px; padding: 0 6px; }
+  .topbar-actions { margin-left: auto; max-width: calc(100vw - 78px); gap: 4px; }
+  .topbar-actions .action-btn { padding: 6px 8px; font-size: 11px; }
   #btn-download-file { display: none; }
   #btn-new-folder { display: none; }
   .brand-name { display: none; }
@@ -490,11 +499,14 @@ html, body {
 }
 
 @media (max-width: 480px) {
-  .topbar-actions { gap: 4px; }
-  .action-btn { padding: 4px 7px; font-size: 10px; }
+  .topbar-actions { gap: 3px; max-width: calc(100vw - 60px); }
+  .topbar-actions .action-btn { padding: 6px 8px; font-size: 0; }
   #btn-projects, #btn-export-zip { font-size: 0; }
   #btn-projects::after { content: "▣"; font-size: 14px; }
   #btn-export-zip::after { content: "⇩"; font-size: 14px; }
+  #btn-run::after { content: "▶"; font-size: 14px; }
+  #btn-save::after { content: "💾"; font-size: 14px; }
+  #btn-new-file::after { content: "＋"; font-size: 16px; }
   #btn-run { font-size: 0; }
   #btn-run::after { content: "▶"; font-size: 14px; }
   #btn-save { font-size: 0; }

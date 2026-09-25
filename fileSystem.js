@@ -237,13 +237,20 @@ const FileSystem = (() => {
   // ---------- Seed default workspace ----------
   async function seedIfEmpty() {
     await ensureInitialized();
-    if ((await store.keys()).some(k => k.startsWith(projectPrefix()))) return false;
+    const seedMarker = `seeded:${currentProjectId}`;
+    if (await metaStore.getItem(seedMarker)) return false;
+    if (currentProjectId !== DEFAULT_PROJECT_ID) return false;
+    if ((await store.keys()).some(k => k.startsWith(projectPrefix()))) {
+      await metaStore.setItem(seedMarker, true);
+      return false;
+    }
     await mkdir('/src');
     await writeFile('/README.md', `# Welcome to Code Editer π\n\nA fully offline, browser-based IDE.\n\n## Phase 1\nUse Project Manager to create projects, import/export ZIP files, and download your workspace.\n\n## Shortcuts\n- \`Ctrl+S\` — Save file\n- \`Ctrl+P\` — Quick file open\n- \`Ctrl+\`\` — Toggle terminal\n- \`Ctrl+Enter\` — Run current file\n- \`Ctrl+B\` — Toggle sidebar\n`);
     await writeFile('/src/index.html', `<!DOCTYPE html>\n<html>\n<head><title>π Preview</title></head>\n<body>\n  <h1>Hello from Code Editer π</h1>\n  <script src="app.js"><\\/script>\n</body>\n</html>`);
     await writeFile('/src/style.css', `body { font-family: sans-serif; padding: 2rem; }`);
     await writeFile('/src/app.js', `console.log('π editor live preview works!');`);
     await writeFile('/src/main.py', `print("Hello from Pyodide — Python in your browser!")`);
+    await metaStore.setItem(seedMarker, true);
     return true;
   }
 

@@ -4,8 +4,8 @@
    fallback. Static and vendor assets are cached for offline startup.
    ============================================================ */
 
-const CACHE_NAME = 'code-editer-pi-v3.1.0';
-const RUNTIME_CACHE = 'code-editer-pi-runtime-v3.1';
+const CACHE_NAME = 'code-editer-pi-v3.1.1';
+const RUNTIME_CACHE = 'code-editer-pi-runtime-v3.1.1';
 const APP_SHELL = new URL('./', self.registration.scope).href;
 
 const PRECACHE = [
