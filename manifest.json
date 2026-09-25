@@ -19,7 +19,7 @@
   "shortcuts": [
     {
       "name": "New File",
-      "url": "./index.html?action=new",
+      "url": "./index.html",
       "icons": [{ "src": "assets/icon.svg", "sizes": "any" }]
     }
   ]
